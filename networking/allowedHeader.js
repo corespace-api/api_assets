@@ -1,12 +1,12 @@
-module.exports = (req, res, next) => {
-    res.header('Access-Control-Allow-Origin', process.env.ALLOWED_ORIGINS);
-    res.header('Access-Control-Allow-Headers', process.env.ALLOWED_HEADERS);
-    res.header('Access-Control-Allow-Methods', process.env.ALLOWED_METHODS_X);
-  
-    if (req.method === 'OPTIONS') {
-      res.header('Access-Control-Allow-Methods', process.env.ALLOWED_METHODS);
-      return res.status(200).json({});
-    }
-  
-    next();
-};
+const dotenv = require('dotenv');
+dotenv.config();
+
+var corsOptions = {
+  origin: process.env.ALLOWED_ORIGINS || `http://localhost:${process.env.PORT}`,
+  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+  methods: process.env.ALLOWED_METHODS_X || 'POST, GET, OPTIONS, DELETE, PUT',
+  allowedHeaders: process.env.ALLOWED_HEADERS || 'Content-Type, x-requested-with, x-access-token, x-refresh-token, _id',
+  maxAge: process.env.ALLOWED_MAX_AGE || 86400,
+}
+
+module.exports = corsOptions;
