@@ -22,6 +22,10 @@ class DBConnector {
     };
   }
 
+  get url() {
+    return this.dbUrl;
+  }
+
   createNAUrl() {
     this.dbUrl = `mongodb://${this.mongoConfig.MONGO_URL}:${this.mongoConfig.MONGO_PORT}/${this.mongoConfig.MONGO_DB}`;
   }
