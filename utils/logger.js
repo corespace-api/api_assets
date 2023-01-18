@@ -82,7 +82,9 @@ class serviceLogger {
   }
 
   warn(message) {
-    console.warn(`${FgYellow}[${this.timestamp}] ${this.serviceName}: ${message}${Reset}`);
+    const logString = `[${this.timestamp}] ${this.serviceName}: ${message}`;
+    console.log(`${FgYellow}${logString}${Reset}`);
+    writeLog('default', logString);
   }
 
   error(message) {
