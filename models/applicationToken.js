@@ -14,7 +14,7 @@ const appTokenSchema = new mongoose.Schema({
   appname: { type: String, required: true},
   created: { type: Date, default: Date.now },
   expires: { type: Date, default: expireData() },
-  volume: { type: Number, default: 1000 },
+  volume: { type: Object, default: { max: 1000, used: 0, lastUsed: Date.now()}},
   active: { type: Boolean, default: true }
 });
 
