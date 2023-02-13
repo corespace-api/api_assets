@@ -15,7 +15,7 @@ class ServiceManager {
     this.logger.log("Loaded service manager successfully");
   }
 
-  async checkForServiceRemoval() {
+  checkForServiceRemoval() {
     if (!this.tenable) return;
     this.logger.log("Checking for service removal...");
     setInterval(() => {
@@ -32,7 +32,7 @@ class ServiceManager {
     }, this.timer);
   }
 
-  async listenForKillSignal() {
+  listenForKillSignal() {
     if (!this.tenable) return;
     this.logger.log("Listening to kill signal ( 10 seconds ) ...");
     setInterval(() => {
