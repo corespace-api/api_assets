@@ -73,12 +73,12 @@ class serviceLogger {
   debug(message) {
     if (!process.env.LOG_LEVEL === 'debug') { return; }
     const logString = `[${this.timestamp}] ${this.serviceName}: ${message}`;
-    console.debug(`${FgCyan}${logString}${Reset}`);
+    console.log(`${FgCyan}${logString}${Reset}`);
     writeLog('debug', logString);
   }
 
   info(message) {
-    console.info(`${FgBlue}[${this.timestamp}] ${this.serviceName}: ${message}${Reset}`);
+    console.log(`${FgBlue}[${this.timestamp}] ${this.serviceName}: ${message}${Reset}`);
   }
 
   warn(message) {
@@ -88,7 +88,7 @@ class serviceLogger {
   }
 
   error(message) {
-    console.error(`${FgRed}[${this.timestamp}] ${this.serviceName}: ${message}${Reset}`);
+    console.log(`${FgRed}[${this.timestamp}] ${this.serviceName}: ${message}${Reset}`);
   }
 
   custom(message, color) {
