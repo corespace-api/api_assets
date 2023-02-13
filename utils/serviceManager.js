@@ -15,25 +15,6 @@ class ServiceManager {
     this.logger.log("Loaded service manager successfully");
   }
 
-  unregisterService() {
-    return new Promise((resolve, reject) => {
-      this.logger.log("Starting service unregistration...");
-
-      serviceSchema.updateOne(
-        { uuid: this.serviceInfo.uuid },
-        { $set: { status: "await_removal" } },
-        (err, result) => {
-          if (err) {
-            this.logger.error(err);
-            return reject(err);
-          }
-          this.logger.success("Service status updated to 'await_removal'");
-          resolve(result);
-        }
-      );
-    });
-  }
-
   async checkForServiceRemoval() {
     if (!this.tenable) return;
     this.logger.log("Checking for service removal...");
@@ -83,6 +64,42 @@ class ServiceManager {
         }
       });
     }, this.timer);
+  }
+
+  setServiceStatus(status) {
+    // find the service and update the status and lastSeen
+    return new Promise((resolve, reject) => {
+      serviceSchema.updateOne(
+        { uuid: this.serviceInfo.uuid },
+        { $set: { status: status, lastSeen: new Date() } },
+        (err, result) => {
+          if (err) {
+            this.logger.error(err);
+            return reject(err);
+          }
+          resolve(result);
+        }
+      );
+    });
+  }
+
+  unregisterService() {
+    return new Promise((resolve, reject) => {
+      this.logger.log("Starting service unregistration...");
+
+      serviceSchema.updateOne(
+        { uuid: this.serviceInfo.uuid },
+        { $set: { status: "await_removal" } },
+        (err, result) => {
+          if (err) {
+            this.logger.error(err);
+            return reject(err);
+          }
+          this.logger.success("Service status updated to 'await_removal'");
+          resolve(result);
+        }
+      );
+    });
   }
 
   registerService() {
