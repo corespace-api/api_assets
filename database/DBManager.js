@@ -42,6 +42,12 @@ class DBConnector {
     return this.connection;
   }
 
+  closeConnection() {
+    if (this.connection) {
+      this.connection.close();
+    }
+  }
+
   attemptConnection() {
     mongoose.set('strictQuery', true);
     return new Promise((resolve, reject) => {
