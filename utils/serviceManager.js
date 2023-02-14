@@ -19,7 +19,7 @@ class ServiceManager {
     if (!this.tenable) return;
     this.logger.log("Checking for service removal...");
     setInterval(() => {
-      serviceSchema.deleteMany({ status: "await_removal" }, (err, result) => {
+      serviceSchema.deleteMany({ status: "await_removal", status: "await_kill" }, (err, result) => {
         if (err) {
           this.logger.error(err);
           return;
@@ -55,6 +55,8 @@ class ServiceManager {
           this.unregisterService()
             .then(() => {
               this.logger.success("Service unregistered");
+              // set the service status to 'await_removal'
+              this.setServiceStatus("await_removal")
               process.exit(1);
             })
             .catch((err) => {
