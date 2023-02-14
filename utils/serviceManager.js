@@ -19,7 +19,7 @@ class ServiceManager {
     if (!this.tenable) return;
     this.logger.log("Checking for service removal...");
     setInterval(() => {
-      serviceSchema.deleteMany({ status: "await_removal", status: "await_kill" }, (err, result) => {
+      serviceSchema.deleteMany({ status: "await_removal" }, (err, result) => {
         if (err) {
           this.logger.error(err);
           return;
