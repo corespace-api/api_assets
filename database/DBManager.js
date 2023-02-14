@@ -22,6 +22,10 @@ class DBConnector {
     };
   }
 
+  get url() {
+    return this.dbUrl;
+  }
+
   createNAUrl() {
     this.dbUrl = `mongodb://${this.mongoConfig.MONGO_URL}:${this.mongoConfig.MONGO_PORT}/${this.mongoConfig.MONGO_DB}`;
   }
@@ -36,6 +40,12 @@ class DBConnector {
 
   getConnection() {
     return this.connection;
+  }
+
+  closeConnection() {
+    if (this.connection) {
+      this.connection.close();
+    }
   }
 
   attemptConnection() {
