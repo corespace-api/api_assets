@@ -52,25 +52,33 @@ class serviceLogger {
     this.timestamp = new Date().toISOString();
   }
 
+  generateNewTimestamp() {
+    this.timestamp = new Date().toISOString();
+  }
+
   log(message) {
+    this.generateNewTimestamp();
     const logString = `[${this.timestamp}] ${this.serviceName}: ${message}`;
     console.log(logString);
     writeLog('default', logString);
   }
 
   request(message) {
+    this.generateNewTimestamp();
     const logString = `[${this.timestamp}] ${this.serviceName}: ${message}`;
     console.log(`${FgMagenta}${logString}${Reset}`);
     writeLog('request', logString);
   }
 
   success(message) {
+    this.generateNewTimestamp();
     const logString = `[${this.timestamp}] ${this.serviceName}: ${message}`;
     console.log(`${FgGreen}${logString}${Reset}`);
     writeLog('default', logString);
   }
 
   debug(message) {
+    this.generateNewTimestamp();
     if (!process.env.LOG_LEVEL === 'debug') { return; }
     const logString = `[${this.timestamp}] ${this.serviceName}: ${message}`;
     console.log(`${FgCyan}${logString}${Reset}`);
@@ -78,20 +86,24 @@ class serviceLogger {
   }
 
   info(message) {
+    this.generateNewTimestamp();
     console.log(`${FgBlue}[${this.timestamp}] ${this.serviceName}: ${message}${Reset}`);
   }
 
   warn(message) {
+    this.generateNewTimestamp();
     const logString = `[${this.timestamp}] ${this.serviceName}: ${message}`;
     console.log(`${FgYellow}${logString}${Reset}`);
     writeLog('default', logString);
   }
 
   error(message) {
+    this.generateNewTimestamp();
     console.log(`${FgRed}[${this.timestamp}] ${this.serviceName}: ${message}${Reset}`);
   }
 
   custom(message, color) {
+    this.generateNewTimestamp();
     console.log(`${color}[${this.timestamp}] ${this.serviceName}: ${message}${Reset}`);
   }
 }
