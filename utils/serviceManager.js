@@ -36,13 +36,7 @@ class ServiceManager {
     if (!this.tenable) return;
     this.logger.log("Listening to kill signal ( 10 seconds ) ...");
     setInterval(() => {
-      serviceSchema.findOne({ uuid: this.serviceInfo.uuid }, (err, result) => {
-        if (err) {
-          this.logger.error(err);
-          return;
-        }
-
-        // check if nothing was found
+      serviceSchema.findOne({ uuid: this.serviceInfo.uuid }).then((result) => {
         if (!result) {
           this.logger.warn("Service not found");
           this.logger.warn("Killing service...");
@@ -58,12 +52,14 @@ class ServiceManager {
               // set the service status to 'await_removal'
               this.setServiceStatus("await_removal")
               process.exit(1);
-            })
-            .catch((err) => {
+            }).catch((err) => {
               this.logger.error("Service unregistration failed: ", err);
               process.exit(1);
             });
         }
+      }).catch((err) => {
+        this.logger.error(err);
+        return;
       });
     }, this.timer);
   }
@@ -72,16 +68,13 @@ class ServiceManager {
     // find the service and update the status and lastSeen
     return new Promise((resolve, reject) => {
       serviceSchema.updateOne(
-        { uuid: this.serviceInfo.uuid },
-        { $set: { status: status, lastSeen: new Date() } },
-        (err, result) => {
-          if (err) {
-            this.logger.error(err);
-            return reject(err);
-          }
+        { uuid: this.serviceInfo.uuid }, 
+        { $set: { status: status, lastSeen: new Date() } }).then((result) => {
           resolve(result);
-        }
-      );
+        }).catch((err) => {
+          this.logger.error(err);
+          return reject(err);
+        });
     });
   }
 
@@ -92,15 +85,13 @@ class ServiceManager {
       serviceSchema.updateOne(
         { uuid: this.serviceInfo.uuid },
         { $set: { status: "await_removal" } },
-        (err, result) => {
-          if (err) {
-            this.logger.error(err);
-            return reject(err);
-          }
-          this.logger.success("Service status updated to 'await_removal'");
-          resolve(result);
-        }
-      );
+      ).then((result) => {
+        this.logger.success("Service status updated to 'await_removal'");
+        resolve(result);
+      }).catch((err) => {
+        this.logger.error(err);
+        return reject(err);
+      });
     });
   }
 
