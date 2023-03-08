@@ -31,8 +31,6 @@ class ServiceManager {
 
     this.fs = require('fs'); this.logger.info("fs loaded");
     this.path = require('path'); this.logger.info("path loaded");
-    this.express = require('express'); this.logger.info("express loaded");
-    this.server = this.express(); this.logger.info("express initialized");
     this.crypto = require("crypto"); this.logger.info("crypto loaded");
     this.mongoose = require("mongoose"); this.logger.info("mongoose loaded");
   }
