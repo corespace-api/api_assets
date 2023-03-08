@@ -1,4 +1,4 @@
-const Fingerprint = require('../networking/fingerprint');
+const Fingerprint = require('../network/fingerprint');
 
 function fingerprintMiddleware(req, res, next) {
   const fingerprintData = {
