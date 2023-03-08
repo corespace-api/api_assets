@@ -1,133 +1,121 @@
-const mongoose = require("mongoose");
-
-const { DBConnector } = require("../database/DBManager");
-const Logger = require("../utils/logger");
-
-const serviceSchema = require("../models/service");
-
 class ServiceManager {
-  constructor(serviceInfo, timer, tenable) {
-    this.serviceInfo = serviceInfo;
-    this.dbc = new DBConnector();
-    this.timer = timer || 10000;
-    this.tenable = tenable || false;
-    this.logger = new Logger(`Manager/ServiceManager`);
-    this.logger.log("Loaded service manager successfully");
+  constructor(name) {
+    this.name = name
+    this.uuid = null
+
+    // Dependencies
+    this.dbc = null
+    this.logger = null;
+    this.fs = null;
+    this.path = null;
+    this.express = null;
+    this.server = null;
+    this.crypto = null;
+    this.mongoose = null;
+    this.getAllRoutes = null;
+    this.commandHandler = null;
+
+    // Configuration
+    this.config = null;
+    this.serviceSchema = require("../models/service");
   }
 
-  checkForServiceRemoval() {
-    if (!this.tenable) return;
-    this.logger.log("Checking for service removal...");
-    setInterval(() => {
-      serviceSchema.deleteMany({ status: "await_removal", status: "await_kill" }, (err, result) => {
-        if (err) {
-          this.logger.error(err);
-          return;
-        }
+  createLogger() {
+    const Logger = require('./logger');
+    this.logger = new Logger(this.name);
+    this.logger.info('Initializing service...');
+  }
 
-        if (result.deletedCount > 0) {
-          this.logger.warn(`Removed ${result.deletedCount} service(s)`);
-        }
+  loadDependencies() {
+    this.logger.log("Loading node dependencies...")
+
+    this.fs = require('fs'); this.logger.info("fs loaded");
+    this.path = require('path'); this.logger.info("path loaded");
+    this.express = require('express'); this.logger.info("express loaded");
+    this.server = this.express(); this.logger.info("express initialized");
+    this.crypto = require("crypto"); this.logger.info("crypto loaded");
+    this.mongoose = require("mongoose"); this.logger.info("mongoose loaded");
+  }
+
+  loadCustomDependencies() {
+    this.logger.log("Loading custom dependencies...");
+
+    const DBConnector = require("../database/DBManager");
+    this.dbc = new DBConnector(); this.logger.info("DBManager loaded");
+
+    const ConfigManager = require("./config");
+    this.config = new ConfigManager(this.logger); this.logger.info("ConfigManager loaded");
+
+    this.getAllRoutes = require("./getAllRoutes");
+
+    const CommandHandler = require("../commands/Handler")
+    this.commandHandler = new CommandHandler(this.config, this.logger, this.dbc, this.serviceSchema)
+  }
+
+  loadConfig() {
+    this.logger.log("Loading configuration...");
+    this.config.loadConfig("config.json");
+    this.config.setConfig("command_path", "../commands")
+    this.logger.success("Configuration loaded");
+  }
+
+  dbConnection() {
+    // Starting connection to the database
+    this.dbc.setConfig(this.config.getConfig("mongodb"));
+    this.dbc.createAUrl();
+    this.logger.log(`Starting connection to the database...`);
+    this.logger.log(`Database URL: ${this.dbc.url}`);
+    this.dbc.attemptConnection()
+      .then(() => {
+        this.logger.success("Database connection succeeded");
+      })
+      .catch((error) => {
+        this.logger.warn("Database connection failed, retrying in 5 seconds...");
+        this.logger.error(error);
+        setTimeout(() => {
+          this.logger.log("Retrying database connection...");
+          this.dbConnection();
+        }, 5000);
       });
-    }, this.timer);
-  }
-
-  listenForKillSignal() {
-    if (!this.tenable) return;
-    this.logger.log("Listening to kill signal ( 10 seconds ) ...");
-    setInterval(() => {
-      serviceSchema.findOne({ uuid: this.serviceInfo.uuid }, (err, result) => {
-        if (err) {
-          this.logger.error(err);
-          return;
-        }
-
-        // check if nothing was found
-        if (!result) {
-          this.logger.warn("Service not found");
-          this.logger.warn("Killing service...");
-          process.exit(1);
-        }
-
-        if (result.status === "await_kill") {
-          this.logger.warn("Service status set to 'await_kill'");
-          this.logger.warn("Killing service...");
-          this.unregisterService()
-            .then(() => {
-              this.logger.success("Service unregistered");
-              // set the service status to 'await_removal'
-              this.setServiceStatus("await_removal")
-              process.exit(1);
-            })
-            .catch((err) => {
-              this.logger.error("Service unregistration failed: ", err);
-              process.exit(1);
-            });
-        }
-      });
-    }, this.timer);
-  }
-
-  setServiceStatus(status) {
-    // find the service and update the status and lastSeen
-    return new Promise((resolve, reject) => {
-      serviceSchema.updateOne(
-        { uuid: this.serviceInfo.uuid },
-        { $set: { status: status, lastSeen: new Date() } },
-        (err, result) => {
-          if (err) {
-            this.logger.error(err);
-            return reject(err);
-          }
-          resolve(result);
-        }
-      );
-    });
-  }
-
-  unregisterService() {
-    return new Promise((resolve, reject) => {
-      this.logger.log("Starting service unregistration...");
-
-      serviceSchema.updateOne(
-        { uuid: this.serviceInfo.uuid },
-        { $set: { status: "await_removal" } },
-        (err, result) => {
-          if (err) {
-            this.logger.error(err);
-            return reject(err);
-          }
-          this.logger.success("Service status updated to 'await_removal'");
-          resolve(result);
-        }
-      );
-    });
   }
 
   registerService() {
-    this.logger.log("Starting service registration...");
-    // this.dbc.createAUrl();
-    // this.dbc.attemptConnection();
+    this.logger.log("Registering service...");
+    this.config.setConfig("uuid", this.crypto.randomBytes(16).toString("hex"))
 
-    const newService = new serviceSchema({
-      _id: new mongoose.Types.ObjectId(),
-      uuid: this.serviceInfo.uuid,
-      name: this.serviceInfo.name,
-      description: this.serviceInfo.description,
-      version: this.serviceInfo.version,
+    const serviceModel = new this.serviceSchema({
+      _id: new this.mongoose.Types.ObjectId(),
+      uuid: this.config.getConfig("uuid"),
+      name: this.config.getConfig("name"),
+      description: this.config.getConfig("description"),
+      version: this.config.getConfig("version")
     });
 
-    this.logger.log("Attemping to register service...");
+    serviceModel.save().then(() => {
+      this.logger.success("Service registered");
+    }).catch((error) => {
+      this.logger.error(error);
+    });
+  }
 
-    newService
-      .save()
-      .then((result) => {
-        this.logger.success("Service registered successfully");
-        this.logger.info(`Service registered with: ${result.uuid}`);
-      })
-      .catch((err) => {
-        this.logger.error(err);
+  listenCommands() {
+    this.commandHandler.init();
+  }
+
+  heardBeat() {
+    setInterval(() => {
+      // Sending heartbeat in form of updating the lastSeen field
+      this.logger.log("Sending heartbeat signal...");
+      this.serviceSchema.findOne({ uuid: this.config.getConfig("uuid") }).then((service) => {
+        if (!service) {
+          this.logger.warn(`Missed heartbeat, possible connection issue`)
+          return;
+        }
+
+        service.lastSeen = new Date().toISOString();
+        service.save();
       });
+    }, this.config.getConfig("heartbeat") || 5000);
   }
 }
 

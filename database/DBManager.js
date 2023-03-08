@@ -26,6 +26,10 @@ class DBConnector {
     return this.dbUrl;
   }
 
+  setConfig(config) {
+    this.mongoConfig = config;
+  }
+
   createNAUrl() {
     this.dbUrl = `mongodb://${this.mongoConfig.MONGO_URL}:${this.mongoConfig.MONGO_PORT}/${this.mongoConfig.MONGO_DB}`;
   }
@@ -68,4 +72,4 @@ class DBConnector {
   }  
 }
 
-module.exports.DBConnector = DBConnector;
+module.exports = DBConnector;
