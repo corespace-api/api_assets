@@ -32,8 +32,8 @@ BgCyan = "\x1b[46m"
 BgWhite = "\x1b[47m"
 
 // create a function to write the different logs (default, error) in append mode in the log files
-const writeLog = (type, message, filePath) => {
-  const logPath = filePath || process.env.LOG_PATH || path.join(__dirname, '../..', 'logs');
+const writeLog = (type, message, uuid) => {
+  const logPath = path.join(__dirname, '../..', 'logs', uuid);
   const logFilePath = path.join(logPath, type);
   const timestamp = new Date().toISOString().split('T')[0];
 
@@ -46,9 +46,9 @@ const writeLog = (type, message, filePath) => {
 
 
 class serviceLogger {
-  constructor(serviceName, loggerStorage) {
+  constructor(serviceName, uuid) {
     this.serviceName = serviceName;
-    this.loggerStorage = loggerStorage;
+    this.uuid = uuid;
     this.timestamp = new Date().toISOString();
   }
 
@@ -60,21 +60,21 @@ class serviceLogger {
     this.generateNewTimestamp();
     const logString = `[${this.timestamp}] ${this.serviceName}: ${message}`;
     console.log(logString);
-    writeLog('default', logString);
+    writeLog('default', logString, this.uuid);
   }
 
   request(message) {
     this.generateNewTimestamp();
     const logString = `[${this.timestamp}] ${this.serviceName}: ${message}`;
     console.log(`${FgMagenta}${logString}${Reset}`);
-    writeLog('request', logString);
+    writeLog('request', logString, this.uuid);
   }
 
   success(message) {
     this.generateNewTimestamp();
     const logString = `[${this.timestamp}] ${this.serviceName}: ${message}`;
     console.log(`${FgGreen}${logString}${Reset}`);
-    writeLog('default', logString);
+    writeLog('default', logString, this.uuid);
   }
 
   debug(message) {
@@ -82,12 +82,13 @@ class serviceLogger {
     if (!process.env.LOG_LEVEL === 'debug') { return; }
     const logString = `[${this.timestamp}] ${this.serviceName}: ${message}`;
     console.log(`${FgCyan}${logString}${Reset}`);
-    writeLog('debug', logString);
+    writeLog('debug', logString, this.uuid);
   }
 
   info(message) {
     this.generateNewTimestamp();
     console.log(`${FgBlue}[${this.timestamp}] ${this.serviceName}: ${message}${Reset}`);
+    writeLog('default', logString, this.uuid);
   }
 
   warn(message) {
@@ -99,7 +100,9 @@ class serviceLogger {
 
   error(message) {
     this.generateNewTimestamp();
-    console.log(`${FgRed}[${this.timestamp}] ${this.serviceName}: ${message}${Reset}`);
+    const logString = `[${this.timestamp}] ${this.serviceName}: ${message}`;
+    console.log(`${FgRed}${logString}${Reset}`);
+    writeLog('error', logString, this.uuid);
   }
 
   custom(message, color) {
