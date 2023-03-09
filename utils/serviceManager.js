@@ -2,6 +2,7 @@ class ServiceManager {
   constructor(name) {
     this.name = name
     this.uuid = null
+    this.missedHeartbeats = 0;
 
     // Dependencies
     this.dbc = null
@@ -18,8 +19,6 @@ class ServiceManager {
     // Configuration
     this.config = null;
     this.serviceSchema = require("../models/service");
-
-    this.missedHeartbeats = 0;
   }
 
   createLogger() {
@@ -31,10 +30,10 @@ class ServiceManager {
   loadDependencies() {
     this.logger.log("Loading node dependencies...")
 
-    this.fs = require('fs'); this.logger.info("fs loaded");
-    this.path = require('path'); this.logger.info("path loaded");
-    this.crypto = require("crypto"); this.logger.info("crypto loaded");
-    this.mongoose = require("mongoose"); this.logger.info("mongoose loaded");
+    this.fs = require('fs');
+    this.path = require('path');
+    this.crypto = require("crypto");
+    this.mongoose = require("mongoose");
   }
 
   loadCustomDependencies() {
