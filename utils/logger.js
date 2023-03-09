@@ -33,12 +33,12 @@ BgWhite = "\x1b[47m"
 
 // create a function to write the different logs (default, error) in append mode in the log files
 const writeLog = (type, message, uuid) => {
-  const logPath = path.join(__dirname, '../..', 'logs', uuid);
-  const logFilePath = path.join(logPath, type);
+  const logPath = path.join(__dirname, '../..', 'logs');
+  const logFilePath = path.join(logPath, uuid, type);
   const timestamp = new Date().toISOString().split('T')[0];
 
   if (!fs.existsSync(logPath)) { fs.mkdirSync(logPath); }
-  if (!fs.existsSync(`${logPath}/${type}`)) { fs.mkdirSync(`${logPath}/${type}`); }
+  if (!fs.existsSync(`${logFilePath}`)) { fs.mkdirSync(`${logFilePath}`); }
 
   // write the log in the file
   fs.appendFileSync(path.join(logFilePath, `${timestamp}.log`), `${message}\r`);
