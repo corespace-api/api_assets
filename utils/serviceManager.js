@@ -17,11 +17,12 @@ class ServiceManager {
     // Configuration
     this.config = null;
     this.serviceSchema = require("../models/service");
-    this.uuid = this.crypto.randomBytes(16).toString("hex");
     this.missedHeartbeats = 0;
+    this.uuid = null
   }
 
   createLogger() {
+    this.uuid = this.crypto.randomBytes(16).toString("hex");
     const Logger = require('./logger');
     this.logger = new Logger(this.uuid, `logs/${this.uuid}`);
     this.logger.info('Initializing service...');
