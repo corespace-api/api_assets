@@ -18,6 +18,8 @@ class ServiceManager {
     // Configuration
     this.config = null;
     this.serviceSchema = require("../models/service");
+
+    this.missedHeartbeats = 0;
   }
 
   createLogger() {
@@ -102,11 +104,17 @@ class ServiceManager {
 
   heardBeat() {
     setInterval(() => {
+      if (this.missedHeartbeats >= 3) {
+        this.logger.error("Missed 3 heartbeats, shutting down service");
+        process.exit(1);
+      }
+
       // Sending heartbeat in form of updating the lastSeen field
       this.logger.log("Sending heartbeat signal...");
       this.serviceSchema.findOne({ uuid: this.config.getConfig("uuid") }).then((service) => {
         if (!service) {
           this.logger.warn(`Missed heartbeat, possible connection issue`)
+          this.missedHeartbeats++;
           return;
         }
 
