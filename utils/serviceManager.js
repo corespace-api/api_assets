@@ -28,8 +28,6 @@ class ServiceManager {
   }
 
   loadDependencies() {
-    this.logger.log("Loading node dependencies...")
-
     this.fs = require('fs');
     this.path = require('path');
     this.crypto = require("crypto");
