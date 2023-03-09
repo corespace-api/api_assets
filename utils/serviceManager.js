@@ -1,11 +1,9 @@
 class ServiceManager {
   constructor(name) {
-    this.name = name
-    this.uuid = this.crypto.randomBytes(16).toString("hex");
-    this.missedHeartbeats = 0;
+    this.name = name;
 
     // Dependencies
-    this.dbc = null
+    this.dbc = null;
     this.logger = null;
     this.fs = null;
     this.path = null;
@@ -19,6 +17,8 @@ class ServiceManager {
     // Configuration
     this.config = null;
     this.serviceSchema = require("../models/service");
+    this.uuid = this.crypto.randomBytes(16).toString("hex");
+    this.missedHeartbeats = 0;
   }
 
   createLogger() {
