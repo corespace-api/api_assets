@@ -24,7 +24,7 @@ class ServiceManager {
   createLogger() {
     this.uuid = this.crypto.randomBytes(16).toString("hex");
     const Logger = require('./logger');
-    this.logger = new Logger(this.uuid, `logs/${this.uuid}`);
+    this.logger = new Logger(this.name, this.uuid);
     this.logger.info('Initializing service...');
   }
 
