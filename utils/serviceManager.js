@@ -23,7 +23,7 @@ class ServiceManager {
 
   createLogger() {
     const Logger = require('./logger');
-    this.logger = new Logger(this.uuid);
+    this.logger = new Logger(this.uuid, `logs/${this.uuid}`);
     this.logger.info('Initializing service...');
   }
 
