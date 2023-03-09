@@ -1,7 +1,7 @@
 class ServiceManager {
   constructor(name) {
     this.name = name
-    this.uuid = null
+    this.uuid = this.crypto.randomBytes(16).toString("hex");
     this.missedHeartbeats = 0;
 
     // Dependencies
@@ -23,7 +23,7 @@ class ServiceManager {
 
   createLogger() {
     const Logger = require('./logger');
-    this.logger = new Logger(this.name);
+    this.logger = new Logger(this.uuid);
     this.logger.info('Initializing service...');
   }
 
@@ -78,7 +78,7 @@ class ServiceManager {
 
   registerService() {
     this.logger.log("Registering service...");
-    this.config.setConfig("uuid", this.crypto.randomBytes(16).toString("hex"))
+    this.config.setConfig("uuid", this.uuid)
 
     const serviceModel = new this.serviceSchema({
       _id: new this.mongoose.Types.ObjectId(),
