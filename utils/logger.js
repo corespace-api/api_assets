@@ -96,7 +96,7 @@ class serviceLogger {
     this.generateNewTimestamp();
     const logString = `[${this.timestamp}] ${this.serviceName}: ${message}`;
     console.log(`${FgYellow}${logString}${Reset}`);
-    writeLog('default', logString);
+    writeLog('default', logString, this.uuid);
   }
 
   error(message) {
