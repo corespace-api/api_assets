@@ -77,6 +77,24 @@ class ServiceManager {
       });
   }
 
+  setStatus(status) {
+    this.serviceSchema.findOne({ uuid: this.config.getConfig("uuid") }).then((service) => {
+      if (!service) {
+        this.logger.warn("Service not found in database");
+        process.exit(1);
+      }
+
+      service.status = status;
+      service.save().then(() => {
+        this.logger.success(`Service status updated to '${status}'`);
+      }).catch((error) => {
+        this.logger.error(error);
+      });
+    }).catch((error) => {
+      this.logger.error(error);
+    });
+  }
+
   registerService() {
     this.logger.log("Registering service...");
     this.config.setConfig("uuid", this.uuid)
