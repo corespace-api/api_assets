@@ -8,7 +8,7 @@ const serviceSchema = new mongoose.Schema({
   version: { type: String, required: true },
   startedAt: { type: Date, required: true, default: Date.now() },
   lastSeen: { type: Date, required: true, default: Date.now() },
-  status: { type: String, required: true, default: 'active' },
+  status: { type: String, required: true, default: 'starting' },
   command: { type: String, require: false, default: '' }
 });
 
