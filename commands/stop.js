@@ -1,8 +1,8 @@
 const Command = require("./Command.js")
 
 class Stop extends Command {
-    constructor(executor, logger, serviceSchema) {
-        super(executor, logger, serviceSchema)
+    constructor(config, logger, serviceSchema) {
+        super(config, logger, serviceSchema)
         this.name = "stop"
         this.description = "Gracefully stops the service"
         this.category = "system"

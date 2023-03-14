@@ -1,11 +1,11 @@
 class Command {
-    constructor(executor, logger, serviceSchema) {
-        this.executor = executor
+    constructor(config, logger, serviceSchema) {
+        this.config = config
+        this.executor = this.config.getConfig("uuid")
         this.serviceSchema = serviceSchema
         this.name = null
         this.description = null
         this.category = null
-
         this.logger = logger
     }
 

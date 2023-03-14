@@ -1,8 +1,8 @@
 const Command = require("./Command.js")
 
 class Cleanup extends Command {
-    constructor(executor, logger, serviceSchema) {
-        super(executor, logger, serviceSchema)
+    constructor(config, logger, serviceSchema) {
+        super(config, logger, serviceSchema)
         this.name = "cleanup"
         this.description = "Removes all log files"
         this.category = "utility"

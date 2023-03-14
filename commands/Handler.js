@@ -55,7 +55,7 @@ class CommandHandler {
                 // load the command and execute it
                 const Command = require(`${this.commandPath}/${command}.js`)
                 console.log(this.config.getConfig("uuid"));
-                const commandInstance = new Command(this.config.getConfig("uuid"), this.logger, this.serviceSchema)
+                const commandInstance = new Command(this.config, this.logger, this.serviceSchema)
                 commandInstance.execute()
             }).catch((err) => {
                 this.logger.error(err)
