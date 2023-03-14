@@ -26,6 +26,7 @@ class ServiceManager {
     const Logger = require('./logger');
     this.logger = new Logger(this.name, this.uuid);
     this.logger.info('Initializing service...');
+    this.logger.warn(`${this.uuid} assigned to service`)
   }
 
   loadDependencies() {
@@ -83,6 +84,7 @@ class ServiceManager {
         this.logger.warn("Service not found in database");
         process.exit(1);
       }
+      if (!service) { this.logger.warn("Service not found in database"); process.exit(1); }
 
       service.status = status;
       service.save().then(() => {
