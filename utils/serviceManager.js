@@ -97,6 +97,12 @@ class ServiceManager {
     });
   }
 
+  crashHandling(error) {
+    this.logger.error(error)
+    this.setStatus(`Crashed: ${error}`)
+    process.exit(1);
+  }
+
   registerService() {
     this.logger.log("Registering service...");
     this.config.setConfig("uuid", this.uuid)
@@ -125,6 +131,7 @@ class ServiceManager {
       if (this.missedHeartbeats >= 3) {
         this.logger.error("Missed 3 heartbeats, shutting down service");
         process.exit(1);
+        this.crashHandling("Missed 3 heartbeats, shutting down service")
       }
 
       // Sending heartbeat in form of updating the lastSeen field
