@@ -80,10 +80,6 @@ class ServiceManager {
 
   setStatus(status) {
     this.serviceSchema.findOne({ uuid: this.config.getConfig("uuid") }).then((service) => {
-      if (!service) {
-        this.logger.warn("Service not found in database");
-        process.exit(1);
-      }
       if (!service) { this.logger.warn("Service not found in database"); process.exit(1); }
 
       service.status = status;
@@ -111,7 +107,6 @@ class ServiceManager {
       _id: new this.mongoose.Types.ObjectId(),
       uuid: this.config.getConfig("uuid"),
       name: this.config.getConfig("name"),
-      description: this.config.getConfig("description"),
       version: this.config.getConfig("version")
     });
 
@@ -129,8 +124,6 @@ class ServiceManager {
   heardBeat() {
     setInterval(() => {
       if (this.missedHeartbeats >= 3) {
-        this.logger.error("Missed 3 heartbeats, shutting down service");
-        process.exit(1);
         this.crashHandling("Missed 3 heartbeats, shutting down service")
       }
 
